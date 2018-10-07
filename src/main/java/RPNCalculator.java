@@ -1,15 +1,16 @@
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.Stack;
 
+import exception.InsufficientHistoryException;
 import exception.InsufficientParameterException;
 import exception.InvalidInputException;
 import repository.StackHistoryRepo;
-import repository.StackRepo;
-import service.StackService;
+import domain.MyStack;
 
 public class RPNCalculator {
 
-    private static StackService stackService = new StackService(new StackRepo(), new StackHistoryRepo());
+    private static MyStack myStack = new MyStack(new Stack<>(), new StackHistoryRepo(new Stack<>()));
 
     public static void main(String[] args) {
 
@@ -27,13 +28,13 @@ public class RPNCalculator {
             try {
                 Arrays.asList(inputs.split(" "))
                         .stream()
-                        .forEach(s -> stackService.pushToRepo(s));
-            } catch (InsufficientParameterException e) {
-                System.out.println(e.getMessage());
-            } catch (InvalidInputException e) {
+                        .forEach(s -> myStack.push(s));
+            } catch (InsufficientParameterException
+                    | InvalidInputException
+                    | InsufficientHistoryException e) {
                 System.out.println(e.getMessage());
             } finally {
-                System.out.println(stackService.display());
+                System.out.println(myStack.display());
             }
         }
     }
