@@ -12,16 +12,15 @@ import org.junit.rules.ExpectedException;
 
 import exception.InsufficientParameterException;
 import exception.InvalidInputException;
+import operator.OperatorFactory;
 import repository.StackHistoryRepo;
-import domain.MyStack;
 
 public class MyStackTest {
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
 
-    private StackHistoryRepo stackHistoryRepo = new StackHistoryRepo(new Stack<>());
-    private MyStack myStack = new MyStack(new Stack<>(), stackHistoryRepo);
+    private MyStack myStack = new MyStack(new Stack<>(), new StackHistoryRepo(), new OperatorFactory());
 
     @Test
     public void shouldPushOperandToStack() {
@@ -32,46 +31,46 @@ public class MyStackTest {
     @Test
     public void shouldBeAbleToClearStack() {
         myStack.push("5");
-        assertThat(myStack.clear().display(), Is.is(""));
+        assertThat(myStack.push("clear").display(), Is.is(""));
     }
 
     @Test
     public void shouldCalculateSqrtOperator() {
         myStack.push("2");
-        assertThat(myStack.sqrt().display(), Is.is("1.4142135623"));
+        assertThat(myStack.push("sqrt").display(), Is.is("1.4142135623"));
 
         myStack.push("4");
-        assertThat(myStack.sqrt().display(), Is.is("1.4142135623 2"));
+        assertThat(myStack.push("sqrt").display(), Is.is("1.4142135623 2"));
     }
 
     @Test
     public void shouldCalculateSubtractionOperator() {
         myStack.push("5");
         myStack.push("2");
-        assertThat(myStack.subtract().display(), Is.is("3"));
+        assertThat(myStack.push("-").display(), Is.is("3"));
         myStack.push("3");
-        assertThat(myStack.subtract().display(), Is.is("0"));
+        assertThat(myStack.push("-").display(), Is.is("0"));
     }
 
     @Test
     public void shouldCalculateAdditionOperator() {
         myStack.push("5");
         myStack.push("2");
-        assertThat(myStack.add().display(), Is.is("7"));
+        assertThat(myStack.push("+").display(), Is.is("7"));
     }
 
     @Test
     public void shouldCalculateMultiplicationOperator() {
         myStack.push("5");
         myStack.push("2");
-        assertThat(myStack.multiply().display(), Is.is("10"));
+        assertThat(myStack.push("*").display(), Is.is("10"));
     }
 
     @Test
     public void shouldCalculateDivisionOperator() {
         myStack.push("5");
         myStack.push("2");
-        assertThat(myStack.divide().display(), Is.is("2.5"));
+        assertThat(myStack.push("/").display(), Is.is("2.5"));
     }
 
     @Test
@@ -80,8 +79,8 @@ public class MyStackTest {
         myStack.push("4");
         myStack.push("3");
         myStack.push("2");
-        assertThat(myStack.undo().display(), Is.is("5 4 3"));
-        assertThat(myStack.undo().display(), Is.is("5 4"));
+        assertThat(myStack.push("undo").display(), Is.is("5 4 3"));
+        assertThat(myStack.push("undo").display(), Is.is("5 4"));
     }
 
     @Test

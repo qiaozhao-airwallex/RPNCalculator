@@ -9,110 +9,53 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import exception.InsufficientParameterException;
-import exception.InvalidInputException;
+import operator.Operator;
+import operator.OperatorFactory;
 import repository.StackHistoryRepo;
 
 public class MyStack {
     private Stack<BigDecimal> stackData;
     private StackHistoryRepo stackHistory;
+    private OperatorFactory operatorFactory;
 
-    public MyStack(Stack<BigDecimal> stackData, StackHistoryRepo stackHistory) {
+    public MyStack(Stack<BigDecimal> stackData,
+                   StackHistoryRepo stackHistory,
+                   OperatorFactory operatorFactory) {
         this.stackData = stackData;
         this.stackHistory = stackHistory;
+        this.operatorFactory = operatorFactory;
     }
 
-    public MyStack push(BigDecimal value) {
+    public void push(BigDecimal value) {
         stackData.push(value);
-        return this;
     }
 
     public BigDecimal pop() {
         return stackData.pop();
     }
 
-    public MyStack push(String token) {
-        if (!"undo".equals(token)) {
-            stackHistory.push(this);
+    public Stack<BigDecimal> popAll() {
+        Stack<BigDecimal> all = new Stack<>();
+        while (!stackData.isEmpty()) {
+            all.push(stackData.pop());
         }
+        return all;
+    }
+
+    public void push(String token) {
         try {
-            switch (token) {
-                case "sqrt":
-                    return sqrt();
-                case "-":
-                    return subtract();
-                case "+":
-                    return add();
-                case "*":
-                    return multiply();
-                case "/":
-                    return divide();
-                case "clear":
-                    return clear();
-                case "undo":
-                    return undo();
-                default:
-                    this.push(new BigDecimal(token, new MathContext(15, RoundingMode.DOWN)));
-            }
-        } catch (EmptyStackException e) {
-            int position = stackHistory.size() * 2 - 1;
-            MyStack lastStack = stackHistory.pop();
-            stackData = lastStack.getStackData();
-            stackHistory = lastStack.getStackHistory();
-            throw new InsufficientParameterException(token, position);
+            BigDecimal number = new BigDecimal(token, new MathContext(15, RoundingMode.DOWN));
+            this.push(number);
+            stackHistory.push();
         } catch (NumberFormatException e) {
-            MyStack lastStack = stackHistory.pop();
-            stackData = lastStack.getStackData();
-            stackHistory = lastStack.getStackHistory();
-            throw new InvalidInputException(token);
+            Operator operator = operatorFactory.createOperator(token);
+            try {
+                operator.apply(this, stackHistory);
+            } catch (EmptyStackException e1) {
+                int position = stackHistory.size() * 2 + 1;
+                throw new InsufficientParameterException(token, position);
+            }
         }
-        return this;
-    }
-
-    public MyStack undo() {
-        MyStack lastStack = stackHistory.pop();
-        stackData = lastStack.getStackData();
-        stackHistory = lastStack.getStackHistory();
-        return this;
-    }
-
-    public MyStack divide() {
-        BigDecimal operand1 = pop();
-        BigDecimal operand2 = pop();
-        this.push(operand2.divide(operand1));
-        return this;
-    }
-
-    public MyStack multiply() {
-        BigDecimal operand1 = pop();
-        BigDecimal operand2 = pop();
-        this.push(operand2.multiply(operand1));
-        return this;
-    }
-
-    public MyStack add() {
-        BigDecimal operand1 = pop();
-        BigDecimal operand2 = pop();
-        this.push(operand2.add(operand1));
-        return this;
-    }
-
-    public MyStack subtract() {
-        BigDecimal operand1 = pop();
-        BigDecimal operand2 = pop();
-        this.push(operand2.subtract(operand1));
-        return this;
-    }
-
-    public MyStack sqrt() {
-        BigDecimal lastNumber = pop();
-        double sqrtRoot = Math.sqrt(lastNumber.doubleValue());
-        this.push(BigDecimal.valueOf(sqrtRoot));
-        return this;
-    }
-
-    public MyStack clear() {
-        stackData.clear();
-        return this;
     }
 
     public String display() {
@@ -130,21 +73,7 @@ public class MyStack {
         return df.format(number);
     }
 
-    public Stack<BigDecimal> getStackData() {
-        return stackData;
-    }
-
-    public void setStackData(Stack<BigDecimal> stackData) {
-        this.stackData = stackData;
-    }
-
-    public MyStack clone() {
-        Stack<BigDecimal> clone = (Stack<BigDecimal>)stackData.clone();
-        MyStack myStack = new MyStack(clone, stackHistory);
-        return myStack;
-    }
-
-    public StackHistoryRepo getStackHistory() {
-        return stackHistory;
+    public int size() {
+        return stackData.size();
     }
 }

@@ -1,38 +1,32 @@
 package repository;
 
-import java.util.EmptyStackException;
+import java.math.BigDecimal;
 import java.util.Stack;
 
-import domain.MyStack;
-import exception.InsufficientHistoryException;
-
 public class StackHistoryRepo {
-    private Stack<MyStack> history;
-
-    public StackHistoryRepo(Stack<MyStack> history) {
-        this.history = history;
-    }
-
-    public void push(MyStack stack) {
-        MyStack clone = stack.clone();
-        history.push(clone);
-    }
-
-    public MyStack pop() {
-        try {
-            return history.pop();
-        } catch (EmptyStackException e) {
-            throw new InsufficientHistoryException();
-        }
-    }
+    private Stack<Stack<BigDecimal>> history = new Stack<>();
 
     public int size() {
         return history.size();
     }
 
-    public StackHistoryRepo clone() {
-        Stack<MyStack> clone = (Stack<MyStack>)history.clone();
-        return new StackHistoryRepo(clone);
+    public void push(BigDecimal... operands) {
+        Stack<BigDecimal> diffInLastOperation = new Stack<>();
+        for (BigDecimal operand: operands) {
+            diffInLastOperation.add(operand);
+        }
+        history.push(diffInLastOperation);
     }
 
+    public void push(Stack<BigDecimal> operands) {
+        Stack<BigDecimal> diffInLastOperation = new Stack<>();
+        for (BigDecimal operand: operands) {
+            diffInLastOperation.add(operand);
+        }
+        history.push(diffInLastOperation);
+    }
+
+    public Stack<BigDecimal> pop() {
+        return history.pop();
+    }
 }

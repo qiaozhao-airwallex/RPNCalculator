@@ -5,12 +5,16 @@ import java.util.Stack;
 import exception.InsufficientHistoryException;
 import exception.InsufficientParameterException;
 import exception.InvalidInputException;
+import operator.OperatorFactory;
 import repository.StackHistoryRepo;
 import domain.MyStack;
 
 public class RPNCalculator {
 
-    private static MyStack myStack = new MyStack(new Stack<>(), new StackHistoryRepo(new Stack<>()));
+    private static MyStack myStack = new MyStack(
+            new Stack<>(),
+            new StackHistoryRepo(),
+            new OperatorFactory());
 
     public static void main(String[] args) {
 
