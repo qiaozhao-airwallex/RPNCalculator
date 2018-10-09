@@ -58,7 +58,8 @@ public class MyStack {
         }
     }
 
-    public String display() {
+    @Override
+    public String toString() {
         return stackData.stream()
                .map(s -> formatBigDecimal(s))
                .collect(Collectors.joining(" "));

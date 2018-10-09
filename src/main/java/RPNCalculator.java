@@ -38,7 +38,7 @@ public class RPNCalculator {
                     | InsufficientHistoryException e) {
                 System.out.println(e.getMessage());
             } finally {
-                System.out.println(myStack.display());
+                System.out.println(myStack);
             }
         }
     }
